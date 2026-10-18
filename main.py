@@ -17,11 +17,16 @@ def main():
     
     pygame.init()
 
+    PLAYER_SCORE_COUNT_FONT = pygame.font.SysFont("Arial", 20) 
+    REMAINING_SCORE_COUNT = pygame.font.SysFont("Times New Roman", 20)
+    object_hit_count = 0
+    remaining_time_count = 60
     time = pygame.time.Clock()
     dt = 0.0
 
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
+    
     updatable = pygame.sprite.Group()
     drawable = pygame.sprite.Group()
     asteroids = pygame.sprite.Group()
@@ -47,6 +52,12 @@ def main():
         
         updatable.update(dt)
 
+        remaining_time_count -= dt
+        if remaining_time_count <= 0:
+            log_event("time_ended")
+            print("Game over!")
+            sys.exit()
+
         for every_asteroid in asteroids:
             if player.collides_with(every_asteroid):
                 log_event("player_hit")
@@ -59,11 +70,19 @@ def main():
                     log_event("asteroid_shot")
                     every_shot.kill()
                     every_asteroid.split()
+                    object_hit_count += 1 
 
         screen.fill("black")
         for every_object in drawable:
 
             every_object.draw(screen)
+
+
+        font_score_rendered = PLAYER_SCORE_COUNT_FONT.render(f'Count: {object_hit_count}', True, (255,255,255))
+        font_time_rendered = REMAINING_SCORE_COUNT.render(f"Time: {round(remaining_time_count)} seconds left", True, (255,255,255))
+        screen.blit(font_score_rendered,(50,50))
+        screen.blit(font_time_rendered, (250,50))
+
 
         pygame.display.flip()
 
